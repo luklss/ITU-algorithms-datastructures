@@ -1,0 +1,123 @@
+\documentclass{tufte-handout}
+%\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{graphicx}
+
+%following 3 packages + new command are for sexy listings (code representation):
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{inconsolata}
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, fonttitle=\bfseries, colframe=gray, listing only, listing options={basicstyle=\ttfamily\footnotesize, language=java,breaklines=true}, title=Source \thetcbcounter: #2, #1} 
+
+
+\title{Giantbook}
+\author{by Group Z\\ Lucas Beck, Eva Bertels, Kristin Kaltenh\"{a}user, Sune T\o nder}
+
+\begin{document}
+\maketitle
+
+\section{Giantbook Report}
+
+
+\subsection{Results}
+
+The following table summarises our results.
+It shows the average number of random connections needed before the emergence of the giant component (``giant''), the disappearance of the last isolated individual (``no isolated''), and when the network becomes connected (``connected'').
+
+\medskip
+\begin{fullwidth}
+\begin{tabular}{rcccccccc}\toprule
+$N$ & $T$ & giant & (stddev) & no isolated & (stddev) & connected & (stddev)\\\midrule
+
+     100 & 1000 & \num{7.1e+01} & 6 & \num{2.6e+02} & \num{6.3e+01}  &\num{2.64e+02} & \num{6.6e+01} \\
+    1000 & 100 & \num{6.94e+02} & \num{1.7e+01} & \num{3.83e+03} & \num{5.79e+02} & \num{3.86e+03} & \num{5.6e+02} \\
+   \num{e4} & 100 & \num{6.93e+03} & \num{5.7e+01} & \num{4.86e+04} & \num{5.82e+03} & \num{4.94e+04} & \num{5.98e+03} \\
+  \num{e5} & 100 & \num{6.93e+04} & \num{1.71e+02} & \num{5.97e+05} & \num{5.3e+04} & \num{6.1e+05} & \num{7.07e+04} \\
+ \num{e6} & 10 & \num{6.93e+05} & \num{6.5e+02} & \num{7.37e+06} & \num{9e+05} & \num{7.5e+06} & \num{7.95e+05}\\
+\num{e7} & 10 & \num{6.93e+06} & \num{2.22e+03} & \num{8.24e+07} & \num{5.71e+06} & \num{8.56e+07} & \num{7.25e+06} \\\bottomrule
+\end{tabular}
+\end{fullwidth}
+
+\medskip\noindent
+Our main findings are the following:
+The first thing that happens is that the giant component emerges, which happens at a time linear in $N$ (see Figure \ref{fig:data}).
+Surprisingly, two of the events seem to happen simultaneously, namely that the last individual becomes nonisolated and that the network becomes connected, which happen at a time close to linear in $N$.
+
+\begin{figure}
+	\includegraphics[scale=0.7]{GBdata.png}
+	\caption{The graphs show how the number of connections needed until an incident (giant, no isolated, connected) increases linearly with the number of individuals in the network (N).}
+	\label{fig:data}
+\end{figure}
+
+\subsection{Implementation details}
+
+We have based our union--find data type on {\tt WeightedQuickUnionUF.java} from Sedgewick and Wayne: {\em Algorithms, 4th ed.}, Addison--Wesley (2011).
+We added a method {\tt isAllConnected} by adding the following lines to {\tt WeightedQuickUnionUF.java}. It returns true when the {\tt count} variable given in the original code from Sedgewick and Wayne is equal to 1.
+
+\begin{sexylisting}{{\tt isAllConnected} method}
+public boolean isAllConnected() {
+    return this.count() == 1; }
+\end{sexylisting}
+
+An {\tt isolatedNodes} variable is set equal to the number of individuals in the network.
+Each time a union is formed from a former isolated member, {\tt isolatedNodes} decreases.
+As soon as {\tt hasIsolatedNode()} returns false, all individuals in the network have at least one connection.
+
+\begin{sexylisting}{Creating variable and checking {\tt isolatedNodes} + decrementing inside {\tt union} method}
+public MyWeightedQuickUnionUF(int n) {
+    isolatedNodes = n; }
+
+public void union(int p, int q) {
+    int rootP = find(p);
+    int rootQ = find(q);
+    if (rootP == rootQ) return;
+
+    if (size[rootP] == 1) isolatedNodes --;
+    if (size[rootQ] == 1) isolatedNodes --;
+    
+    // find root
+    // decrease count }
+
+public boolean hasIsolatedNode () {
+    return isolatedNodes != 0; }
+\end{sexylisting}
+
+We introduce the variable {\tt maxComponentSize} that is set equal to the size of the bigger component when a new union between two components is formed.
+The check for whether a giant component is reached is done inside the client code (not displayed), by comparing the {\tt maxComponentSize} with the size of the network devided by two.
+
+\begin{sexylisting}{Creating variable and checking {\tt maxComponentSize} + incrementing inside {\tt union} method}
+private int maxComponentSize;
+
+public void union(int p, int q) {
+    // find roots
+    
+    if (size[rootP] < size[rootQ]) {
+        parent[rootP] = rootQ;
+        size[rootQ] += size[rootP];
+        if (size[rootQ] > maxComponentSize) maxComponentSize = size[rootQ];
+    } else {
+        parent[rootQ] = rootP;
+        size[rootP] += size[rootQ];
+        if (size[rootP] > maxComponentSize) maxComponentSize = size[rootP]; }
+    
+    // decrease count }
+    
+public int maxComponentSize() {
+    return maxComponentSize; }
+\end{sexylisting}
+
+Assuming we never run out of memory or heap space, if we would let our algorithm for detecting the emergence of a giant component run for 24 hours, it could compute the answer for $N= \num{e10}$.
+
+% We've run the code using a quick-find implementation as well.
+% In 1 hour, we were able to handle and instance of size $N=[\ldots]$.
+% We didn't.
+
+
+\subsection{Discussion}
+
+We defined the giant component to have size at least $\alpha N$ for $\alpha = \frac{1}{2}$. 
+The choice of $\alpha$ is arbitrary, choosing other constants (such as $\alpha=\frac{1}{10}$ or $\alpha=\frac{9}{10}$) gave essentially the same results.
+However it can be noted that the formation of a giant component of size $\alpha N$ takes exponentially more time the bigger $\alpha$ is.
+
+\end{document}  

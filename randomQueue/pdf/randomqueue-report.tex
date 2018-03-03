@@ -1,0 +1,57 @@
+\documentclass{tufte-handout}
+%\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{graphicx}
+
+%following 3 packages + new command are for sexy listings (code representation):
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{inconsolata}
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, fonttitle=\bfseries, colframe=gray, listing only, listing options={basicstyle=\ttfamily\footnotesize, language=java,breaklines=true}, title=Source \thetcbcounter: #2, #1} 
+
+
+\title{RandomQueue}
+\author{by Group Z\\ Lucas Beck, Eva Bertels, Kristin Kaltenh\"{a}user, Sune T\o nder}
+
+\begin{document}
+\maketitle
+
+\section{RandomQueue Report}
+
+\subsection{Implementation details}
+
+We have implemented our RandomQueue data structure using the resizing array implementation because the array index provides immediate access to any item. In contrast, for the linked list implementation a reference would be needed in order to access an item, which is less convenient for the methods we are to implement. The implementation of the methods follow roughly the examples used in Sedgewick and Wayne: {\em Algorithms, 4th ed.}, Addison--Wesley (2011). 
+
+In order to pick a random item in the two methods {\tt dequeue} (return and remove a random item) and {\tt sample} (return a random item), we used the Princeton Standard Library {\tt StdRandom} class.
+
+For the implementation of the  random iterator we looked for a solution to make it possible for the iterator to randomly iterate over the queue while still keeping track of which elements have been accessed to allow only one access per element and iteration. We decided to create an additional array every time the iterator is called, which is shuffled using the Princeton Standard Library.
+
+
+\begin{sexylisting}{The RandomQueue iterator}
+  private class RandomQueueIterator implements Iterator<Item> {
+        private int[] randomNumbers = new int[N];
+        private int index = 0;
+
+        public RandomQueueIterator(){
+            for (int i = 0; i < N; i++) {
+                randomNumbers[i] = i;
+            }
+            StdRandom.shuffle(randomNumbers);
+        }
+\end{sexylisting}
+
+
+\subsection{Testing}
+
+We have tested our implementation with codeJudge. After the correction of minor syntax errors and the elimination of a {\tt NullPointerException} we succeeded (see Figure \ref{fig:codejudge}).
+
+We have also tested our implementation with the given client method, which creates two RandomQueues and tests its methods as well as the iterator. The result is as expected and can be found in the attached text file.
+
+\begin{figure}
+	\includegraphics[scale=0.3]{codejudge.png}
+	\label{fig:codejudge}
+	\caption{screenshot of our codejudge history, testing our implementation of RandomQueue}
+\end{figure}
+
+\end{document}  

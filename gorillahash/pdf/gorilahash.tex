@@ -1,0 +1,68 @@
+\documentclass{tufte-handout}
+%\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{adjustbox}
+\usepackage{graphicx}
+
+%following 3 packages + new command are for sexy listings (code representation):
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{inconsolata}
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, fonttitle=\bfseries, colframe=gray, listing only, listing options={basicstyle=\ttfamily\footnotesize, language=java,breaklines=true}, title=Source \thetcbcounter: #2, #1} 
+
+
+\title{GorillaHash}
+\author{by Group Z\\ Lucas Beck, Eva Bertels, Kristin Kaltenh\"{a}user, Sune T\o nder}
+
+\begin{document}
+\maketitle
+
+\section{GorilaHash Report}
+
+\subsection{Implementation}
+\justify
+In general lines, we parse the strings from the file and make the distinction if it is the name of the species or part of the protein sequence by looking if the string starts with ">". We concatenate each line of the protein sequence using a String Builder.
+
+While parsing the strings, we initialize a new species which has a name, a sequence, a vector profile, a \textit{k} (size of the k-gram) and a \textit{d} (number of hash-buckets). By initializing the new species, we also create the vector profile using the parameters \textit{k} and \textit{d}.
+By the end of the parsing, we have a list of species, which we then iterate through and compare using the method similarity(). The method takes another species and computes the dot product between the two vectors divided by the product of the two vector`s euclidean lengths.
+
+In order to perform the vector calculations, we used the standard library Vector provided by Princeton.
+
+
+
+\subsection{Results}
+
+The following table gives the similarity between each pair of species as a number between 0 and 1, higher values meaning more similar. We have used the hash function provided by java in the way suggested: \begin{math} S.hashcode() \% d\end{math}. However, since we were potentially dealing with very large strings (depending on the parameter \begin{math} k \end{math}), we encountered problems with overflow. 
+
+In order to circumvent that issue, we have decided to go with the absolute value of hashcode. That of course, causes more collisions than the normal hash function. However, we still satisfy the hash requirements, that the hashes are produced uniformly and that for two given strings such as \begin{math} x = y \end{math}, we have that \begin{math} h(x) = h(y) \end{math}. Moreover, for our application the hash function showed to be good enough in terms of collisions.
+
+Using \begin{math} k = 3 \end{math} and \begin{math} d = 10000, \end{math} we have got the results displayed in the table below. As seen, the species closest to us are the Gorilla and the Spider monkey, followed by pig and cow. The Sea cucumber and the Lamprey are the furthest away, which makes perfect sense.
+\\[1\baselineskip]
+
+\medskip
+\begin{adjustbox}{scale=0.8}
+
+\begin{tabular}{c|c|c|c|c|c|c|c|c|c|c|c|c|}\toprule
+Species & Human & Gorilla & Monkey & Horse & Deer & Pig & Cow & Gull & Trout & R. Cod & Lamprey & Sea Cuc.\\\midrule
+Human &	\num{1}&	\num{0.9807}&	\num{0.8932}&	\num{0.6302}&	\num{0.4221}&	\num{0.6802}&	\num{0.6318}&	\num{0.3625}&	\num{0.2071}&	\num{0.1071}&	\num{0.0649}&	\num{0.0623}\\
+Gorilla &	\num{0.9807}&	\num{1}&	\num{0.873}&	\num{0.6084}&	\num{0.3987}&	\num{0.658}&	\num{0.6491}&	\num{0.3388}&	\num{0.202}&	\num{0.128}&	\num{0.0654}&	\num{0.0627}\\
+Monkey &	\num{0.8932}&	\num{0.873}&	\num{1}&	\num{0.6494}&	\num{0.459}&	\num{0.6535}&	\num{0.6645}&	\num{0.3791}&	\num{0.1699}&	\num{0.1149}&	\num{0.0721}&	\num{0.0566}\\
+Horse &	\num{0.6302}&	\num{0.6084}&	\num{0.6494}&	\num{1}&	\num{0.4365}&	\num{0.5962}&	\num{0.614}&	\num{0.3766}&	\num{0.2143}&	\num{0.1411}&	\num{0.0586}&	\num{0.0688}\\
+Deer &	\num{0.4221}&	\num{0.3987}&	\num{0.459}&	\num{0.4365}&	\num{1}&	\num{0.4014}&	\num{0.5067}&	\num{0.2557}&	\num{0.1836}&	\num{0.1221}&	\num{0.0461}&	\num{0.0316}\\
+Pig &	\num{0.6802}&	\num{0.658}&	\num{0.6535}&	\num{0.5962}&	\num{0.4014}&	\num{1}&	\num{0.5966}&	\num{0.3801}&	\num{0.2}&	\num{0.1104}&	\num{0.0535}&	\num{0.0642}\\
+Cow &	\num{0.6318}&	\num{0.6491}&	\num{0.6645}&	\num{0.614}&	\num{0.5067}&	\num{0.5966}&	\num{1}&	\num{0.3123}&	\num{0.1661}&	\num{0.1581}&	\num{0.0667}&	\num{0.0576}\\
+Gull &	\num{0.3625}&	\num{0.3388}&	\num{0.3791}&	\num{0.3766}&	\num{0.2557}&	\num{0.3801}&	\num{0.3123}&	\num{1}&	\num{0.2353}&	\num{0.1623}&	\num{0.0525}&	\num{0.0629}\\
+Trout &	\num{0.2071}&	\num{0.202}&	\num{0.1699}&	\num{0.2143}&	\num{0.1836}&	\num{0.2}&	\num{0.1661}&	\num{0.2353}&	\num{1}&	\num{0.2096}&	\num{0.0852}&	\num{0.0378}\\
+R. Cod &	\num{0.1071}&	\num{0.128}&	\num{0.1149}&	\num{0.1411}&	\num{0.1221}&	\num{0.1104}&	\num{0.1581}&	\num{0.1623}&	\num{0.2096}&	\num{1}&	\num{0.0475}&	\num{0.013}\\
+Lamprey &	\num{0.0649}&	\num{0.0654}&	\num{0.0721}&	\num{0.0586}&	\num{0.0461}&	\num{0.0535}&	\num{0.0667}&	\num{0.0525}&	\num{0.0852}&	\num{0.0475}&	\num{1}&	\num{0.0568}\\
+Sea Cuc &	\num{0.0623}&	\num{0.0627}&	\num{0.0566}&	\num{0.0688}&	\num{0.0316}&	\num{0.0642}&	\num{0.0576}&	\num{0.0629}&	\num{0.0378}&	\num{0.013}&	\num{0.0568}&	\num{1}\\
+
+
+\end{tabular}
+\end{adjustbox}
+
+\subsection{Tests}
+We did not perform tests in the vector functions as proposed given that we used the standard library provided by Princeton.
+
+\end{document}  

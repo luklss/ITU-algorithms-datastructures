@@ -1,0 +1,34 @@
+
+# standard classes of java
+*.class
+
+# related to latex
+*.log
+*.aux
+*.out
+*.pdf
+*.dvi
+*.gz
+*.cls
+*.listing
+*.sh
+
+# a bunch of project related things created by me
+*.jar
+*.classpath
+*.project
+pom.xml
+**/target/**
+*.prefs
+**/.vscode/**
+*.xml
+runsort/out/production/runsort/1letter.txt
+*.png
+*.gpl
+runsort/out/production/runsort/runsort.iml
+runsort/runsort.iml
+runsort/out/production/runsort/2letter.txt
+gorillahash/src/test.java
+*.iml
+gorillahash/newout.csv
+gorillahash/out.csv

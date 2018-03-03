@@ -1,0 +1,40 @@
+\documentclass{tufte-handout}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{graphicx}
+
+
+\title{Runsort Report}
+\author{by Group Z\\ Lucas Beck, Eva Bertels, Kristin Kaltenh\"{a}user, Sune T\o nder}
+
+\begin{document}
+\maketitle
+
+\section{Tests}
+
+  We have run our sorting algorithm on the following inputs from the book. All input files were sorted, their respective sizes are indicated in parentheses:
+    {\tt tiny.txt} (9 Strings of 1 char), {\tt words3.txt} (11 Strings of 3 char), {\tt 1letter.txt} (1 String of 1 char), {\tt 2letter.txt} (2 Strings of 1 char), {\tt empty.txt} (empty), and {\tt medium.txt} (2,000 Strings of various 2--6 char).
+    
+  \begin{marginfigure}
+  \includegraphics[scale=0.5]{doubles.png}
+  \caption{Data from {\tt medium.txt} after sorting with Runsort.java}
+  \label{Fig:doubles}
+  \end{marginfigure}
+
+  The algorithm fails on medium.txt to the extend that it disregards the decimal point (see Figure \ref{Fig:doubles}). This error is due to the program always treating the input as strings. We expect that parsing the input as doubles would solve the problem.
+
+  \section{Extensions}  
+
+  Our {\tt FancyRunsort} implementation switches to insertion sort for sequences of length at most 8.
+  We performed tests with and without this extension for our input files of sizes 0, 1, 2, 9, 11 and 2000 Strings but
+  we were not able to detect major differences in running time (see Figure \ref{Fig:plot}).
+  
+  \begin{figure}
+  \includegraphics[scale=0.6]{RSdata.png}
+  \caption{Runtimes of {\tt Runsort} and {\tt FancyRunsort} on all input files averaged from 10 runs.}
+  \label{Fig:plot}
+  \end{figure}
+
+
+\end{document}
